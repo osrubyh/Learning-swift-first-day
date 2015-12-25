@@ -273,19 +273,78 @@ class Shape {
 }
 
 //要创建一个类的实例，在类名后面加上括号。使用点语法来访问实例的属性和方法
+var shape = Shape()
+shape.numberOfSides = 7
+var shapeDescription = shape
+
+//这个版本的Shape类缺少了一些重要的东西：一个构造函数来初始化类实例。使用init来创建一个构造器。
+//注意self被用来区别实例变量。当你创建实例的时候，像传入函数参数一样给类传入构造器的参数。每个属性都需要赋值——无论是通过声明（就像numberOfSides）还是通过构造器（就像name）。
+class NamedShape {
+    var numberOfSides: Int = 0
+    var name: String
+    init(name: String) {
+        self.name = name
+    }
+    
+    func simpleDescription() ->String {
+        return "A shape with \(numberOfSides) sides."
+    }
+}
+
+//子类的定义方法是在它们的类名后面加上父类的名字，用冒号分割。创建类的时候并不需要一个标准的根类，所以你可以忽略父类.子类如果要重写父类的方法的话，需要用override标记——如果没有添加override就重写父类方法的话编译器会报错。编译器同样会检测override标记的方法是否确实在父类中。
+class Square: NamedShape {
+    var sideLength: Double
+    
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 4
+    }
+    func area() -> Double {
+        return sideLength * sideLength
+    }
+    
+    override func simpleDescription() -> String {
+        return "A square with sides of length \(sideLength)."
+    }
+}
+let test = Square(sideLength: 5.2, name: "my test square")
+test.area()
+test.simpleDescription()
+
+//练习
+class Circle: NamedShape {
+    var radius: Double
+    
+    init(name: String, radius: Double) {
+        self.radius = radius
+        super.init(name: name)
+    }
+    
+    func area() -> Double {
+        return 3.14 * radius * radius
+    }
+    
+    override func simpleDescription() -> String {
+        return "A circle with sides of length \(radius)."
+    }
+}
+let result = Circle.init(name: "rubyh", radius: 3)
+result.area()
+result.simpleDescription()
 
 
+//除了储存简单的属性之外，属性可以有 getter 和 setter 。
 
-
-
-
-
-
-
-
-
-
-
+class EquilateralTriangle: NamedShape {
+    var sideLength: Double = 0.0
+    
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 3
+    }
+}
 
 
 

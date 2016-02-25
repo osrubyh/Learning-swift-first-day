@@ -54,6 +54,7 @@ occupations = [:]
 
 //使用if和switch来进行条件操作，使用for-in ,for ,while和repeat-while来进行循环，包裹条件和循环变量括号可以省略，dan
 let individualScore = [75,43,103,87,12]
+
 var teamScore = 0
 for score in individualScore{
     if score > 50 {
@@ -67,6 +68,7 @@ print(teamScore)
 //在if语句中，条件必须是一个布尔表达式--这意味着像if score{...}这样的代码将报错，而不会隐形的与0作对比。你可以一起使用if和let来处理缺失的情况。这些值可由可选值来代表 。一个可选的值是一个具体的值或者是nil以表示值缺失。在类型后面加一个问号来标记这个变量的值是可选的
 
 var optionalString: String? = "hello"
+
 print(optionalString == nil)
 
 var optionalName: String? = "John Appleseed"
@@ -221,6 +223,7 @@ func returnFifteen() ->Int {
 }
 returnFifteen()
 
+
 //函数是第一等类型，这意味着函数可以作为另一个函数的返回值
 func makeIncrementer(i: Int) -> (String ->String) {
     func addOne(numberStr: String) -> String {
@@ -276,7 +279,7 @@ class Shape {
 var shape = Shape()
 shape.numberOfSides = 7
 var shapeDescription = shape
-
+shapeDescription.simpleDescription()
 //这个版本的Shape类缺少了一些重要的东西：一个构造函数来初始化类实例。使用init来创建一个构造器。
 //注意self被用来区别实例变量。当你创建实例的时候，像传入函数参数一样给类传入构造器的参数。每个属性都需要赋值——无论是通过声明（就像numberOfSides）还是通过构造器（就像name）。
 class NamedShape {
@@ -344,12 +347,238 @@ class EquilateralTriangle: NamedShape {
         super.init(name: name)
         numberOfSides = 3
     }
+    var perimeter: Double {
+        get {
+            return 3.0 * sideLength
+        }
+        set {
+            sideLength = newValue/3.0
+        }
+    }
+    
+    override func simpleDescription() -> String {
+        return "An equilateral triagle with sides of length\(sideLength)."
+    }
 }
 
+var triangle = EquilateralTriangle(sideLength: 3, name: "a triangle")
+print(triangle.perimeter)
+triangle.perimeter = 9.9
+print(triangle.sideLength)
+
+/*在perimeter的 setter 中，新值的名字是newValue。你可以在set之后显式的设置一个名字。
+注意EquilateralTriangle类的构造器执行了三步：
+1.设置子类声明的属性值
+2.调用父类的构造器
+3.改变父类定义的属性值。其他的工作比如调用方法，getters和setters也可以在这个阶段完后。
+
+如果你不需要计算属性，但是仍然需要在设置一个新值之前或者之后运行代码，使用willSet和didSet。
+比如，下面的类确保三角形的边长总是和正方形的边长相同。*/
+class TriangleAndSquare {
+    var triangle: EquilateralTriangle {
+        willSet {
+            square.sideLength = newValue.sideLength
+        }
+    }
+    var square: Square {
+        willSet {
+            triangle.sideLength = newValue.sideLength
+        }
+    }
+    init(size: Double, name: String) {
+        square = Square(sideLength: size, name: name)
+        triangle = EquilateralTriangle(sideLength: size, name: name)
+    }
+}
+
+var triangleAndSquare = TriangleAndSquare(size: 10, name: "another test ")
+print(triangleAndSquare.square.sideLength)
+print(triangleAndSquare.triangle.sideLength)
+triangleAndSquare.square = Square(sideLength: 50, name: "larger square")
+print(triangleAndSquare.triangle.sideLength)
+
+/*处理变量的可选值时，你可以在操作（比如方法，属性和子脚本）之前加？。如果？之前的值是nil，？后面的东西都会被忽略，并且整个表达式返回nil。否则，？之后的东西都会被执行，在这两种情况下，整个表达式的值也是一个可选值。*/
+let optionalSquare: Square? = Square(sideLength: 2.5, name: "optional square")
+let sideLength = optionalSquare?.sideLength
+
+//枚举和结构体
+//使用enum来创建一个枚举，就像类和其他所有命名类型一样，枚举可以包含方法。
+enum Rank: Int {
+    case Ace = 1
+    case Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten
+    case Jack, Queen, King
+    func simpleDescription() -> String {
+        switch self {
+        case .Ace:
+            return "ace"
+        case .Jack:
+            return "jack"
+        case .Queen:
+            return "queen"
+        case .King:
+            return "king"
+        default:
+            return String(self.rawValue)
+        }
+    }
+}
+
+let ace = Rank.Jack
+let aceRawValue = ace.rawValue
+/*在上面的例子中，枚举的原始值是Int， 所以你只需要设置第一个原始值。剩下的原始值会按照顺序赋值。你也可以使用字符串或者浮点数作为枚举的原始值。使用rawValue属性来访问一个枚举成员的原始值*/
+//使用init？(rawValue:) 初始构造器在原始值和枚举值之间进行转换
+
+if let convertedRank = Rank(rawValue: 5) {
+    let threeDescription = convertedRank.simpleDescription()
+}
+
+//枚举的成员值是实际值，并不是原始值的另一种表达方法。实际上，以防原始值没有意义，你不需要设置
+enum Suit {
+    case Spades, Hearts, Diamonds, Clubs
+    func simpleDescription() -> String {
+        switch self {
+        case .Spades:
+            return "spades"
+        case .Hearts:
+            return "hearts"
+        case .Diamonds:
+            return "diamond"
+        case .Clubs:
+            return "clubs"
+        }
+    }
+    func color() -> String {
+        switch self {
+        case .Spades:
+            return "black"
+        case .Hearts:
+            return "red"
+        case .Diamonds:
+            return "red"
+        case .Clubs:
+            return "black"
+        }
+    }
+}
+let hearts = Suit.Hearts
+let heartsDescription = Suit.Diamonds.simpleDescription()
+let currentColor = Suit.Diamonds.color()
+
+//注意，有两种方式可以引用Hearts成员:给hearts常量赋值时，枚举成员Suit.Hearts需要用全名来引用，因为常量没有显示指定类型。在switch里，枚举成员使用缩写.Hearts来引用，因为self的值已经知道是一个suit。已知变量类型的情况下你可以使用缩写。
+
+//使用struct来创建一个结构体，结构体和类有很多相同的地方，比如方法和构造器。他们之间最大的一个区别就是结构体是传值，类是传引用
 
 
+struct Card {
+    var rank: Rank
+    var suit: Suit
+    func simpleDescription() -> String {
+        return "The \(rank.simpleDescription()) of \(suit.simpleDescription())"
+    }
+}
+let threeOfSpades = Card(rank: .Three, suit: .Spades)
+let threeOfSpadesDescription = threeOfSpades.simpleDescription()
 
+//一个枚举成员的实例可以有实例值。相同枚举成员的实例可以有不同的值。创建实例的时候传入值即可。实例值和原始值是不同的：枚举成员的原始值对于所有实例都是相同的，而且你是定义枚举的时候设置原始值。
+//例如，考虑从服务器取日出和日落的时间。服务器会返回正常结果或者错误信息。
 
+enum SeverResponse {
+    case Result(String, String)
+    case Error(String)
+}
+
+let success = SeverResponse.Result("6.00 am", "8:09 pm")
+let failure = SeverResponse.Error("Out of chesse.")
+
+switch failure {
+case let .Result(sunrise, sunset):
+    let serverResponse = "Sunrise is at \(sunrise) and sunset is at \(sunset)."
+case let .Error(error):
+    let serverResponse = "Failure... \(error)"
+    
+}
+
+//协议与扩展
+//使用protocol来声明一个协议。
+
+protocol ExampleProtocol {
+    var simpleDescription: String{
+        get
+    }
+    mutating func adjust()
+}
+
+//类和枚举和结构体都可以实现协议
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    func adjust() {
+        simpleDescription += "Now 100% adjusted."
+    }
+}
+
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+struct SimpleStructure:ExampleProtocol {
+    var simpleDescription: String = "A simple structure"
+    mutating func adjust() {
+        simpleDescription += " (adjusted)"
+    }
+}
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
+
+//注意声明SimpleStructure时候mutating关键字用来标记一个会修改结构体的方法。SimpleClass的声明不需要标记任何方法，因为类中的方法通常可以修改类属性（类的性质）。
+//使用extension来为现有的类型添加功能，比如新的方法和计算属性。你可以使用扩展在别处修改定义，甚至是从外部库或者框架引入的一个类型，使得这个类型遵循某个协议。
+extension Int: ExampleProtocol {
+    var simpleDescription: String {
+        return "The number \(self)"
+    }
+    mutating func adjust() {
+        self += 42
+    }
+}
+
+print(7.simpleDescription)
+
+//你可以像使用其他命名类型一样使用协议名--例如，创建一个有不同类型但是都实现一个协议的对象集合。当你处理类型是协议的值时，协议外定义的方法不可用。
+let protocolValue: ExampleProtocol = a
+print(protocolValue.simpleDescription)
+
+//泛型
+//在尖括号里写一个名字来创建一个泛型函数或者类型。
+func repeatItem<D>(d: D, numberOfTimes: Int) -> [D] {
+    var result = [D]()
+    for _ in 0..<numberOfTimes {
+        result.append(d)
+    }
+    return result
+}
+repeatItem("knock", numberOfTimes:4)
+
+//你也可以创建泛型函数，方法，类，枚举和结构体。
+enum OptionValue<Wrapped> {
+    case None
+    case Some(Wrapped)
+}
+var possibleInteger: OptionValue<String> = OptionValue.None
+possibleInteger = .Some("asd")
+
+//在类型后面使用where来制定对类型的需求，比如，限定类型实现某一个协议，限定两个类型是相同的，或者限定某个类必须有一个特定的父类。
+func anyCommonElements <T: SequenceType, U: SequenceType where T.Generator.Element: Equatable, T.Generator.Element == U.Generator.Element> (lhs: T, _ rhs: U) -> Bool {
+    for lhsItem in lhs {
+        for rhsItem in rhs {
+            if lhsItem == rhsItem {
+                return true
+            }
+        }
+    }
+    return false
+}
+anyCommonElements([1], [3])
 
 
 

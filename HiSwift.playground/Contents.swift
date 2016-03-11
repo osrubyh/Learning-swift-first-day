@@ -580,9 +580,7 @@ func anyCommonElements <T: SequenceType, U: SequenceType where T.Generator.Eleme
 }
 anyCommonElements([1], [3])
 
-
-
-
+anyCommonElements([1], [4])
 
 
 
